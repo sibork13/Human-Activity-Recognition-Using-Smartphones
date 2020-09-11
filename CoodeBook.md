@@ -6,7 +6,7 @@
     + Walking
     + Walkin upstair
     + Walkin downstair
-    +sitting
+    + sitting
     + standing
     + laying
     
