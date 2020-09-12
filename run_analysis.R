@@ -83,9 +83,11 @@ df<-select(df,sort(st))
 # En esta parte nos piden obtener un dataset donde se tenga el promedio de los valores
 # por cada variable,actividad y sujeto
 # '''
-# La funcion aggregate aplica una funcion entre un objeto r y hace un df
-# con las columnas pasdas
-nuevo<-aggregate(cbind(df$Volunteer,df$Activity), df,mean)
-# Ordenamo el df
-nuevo<-nuevo[order(nuevo$Volunteer,nuevo$Activity),]
-write.table(nuevo, "nuevo.txt", row.name=FALSE)
+# group by subject and activity and summarise using mean
+tidy <- df %>% 
+  group_by(Volunteer, Activity) %>%
+  summarise_each(funs(mean))
+
+# output to file "tidy_data.txt"
+write.table(tidy, "tidy_df.txt", row.names = FALSE, 
+            quote = FALSE)
