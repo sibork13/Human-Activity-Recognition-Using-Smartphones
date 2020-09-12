@@ -1,19 +1,4 @@
-#
-# ''' Primero haremos un cambio en x_train y x_test, agregando una columna "Tipe" que
-#  especifique si es train o test
-# '''
-# '''
-# Uniremos x_test con y_test  y con subject_test , x_train con y_train y con subject_train
-#  '''
-#
-#  '''
-# Cambiaremos el nombre de las columnas y_train y y_test a Activity
-# Cambiaremos subject_test y subject_train por Subject
-# '''
-#
-# '''
-# Unimremos los dos df con merge o melt
-# '''
+
 # Importamos librerias
 library(data.table)
 
@@ -36,38 +21,26 @@ Tipe<-rep("train",dim(xtrain)[1])
 xtrain<-cbind(xtrain,Tipe,ytrain,subtrain)
 Tipe<-rep("test",dim(xtest)[1])
 xtest<-cbind(xtest,Tipe,ytest,subtest)
-# Merge two dataframes
+# Unimos los dos df
 df<-rbind(xtrain,xtest)
 
 
-# '''
-# Para hacer la segunda parte,m haremos la tercer y cuarta parte primero
-# Tercer seccion
-# '''
-
-# Read file where is the activity names
+# Lee archivo donde estan los nombres 
 aclab<-fread("activity_labels.txt")
-# Set names to easy manipulate
+# Ponemos nombres para que sea facil de manipualr
 names(aclab)<-c("id","activity")
-# Change class of Activiy column
+# Cambia la clase de  la columna
 df$Activity<-as.character(df$Activity)
-# Change number to descriptive name
+# Cambia el valor
 for(i in aclab$id){
   df$Activity<-sub(as.character(i),aclab$activity[i],df$Activity)
 }
-# '''
-# Cuarta seccion
-# Cambiamos los nombres de las 561 columnas del df con los 561 nombres en el archivo features
-# '''
+
 
 fea<-fread("features.txt")
 names(fea)<-c("id","label")
 names(df)[1:561]<-fea$label
-# '''
-# Seccion dos
-# Nos piden tener solo las columnas que sean promedio o derivacionestnadar
-# Buscaremos el numero de columna que tenga mean() o std() y haremos un select con esos indice
-# '''
+
 library(dplyr)
 me<-grep("mean()",names(df))
 st<-grep("std()",names(df))
@@ -77,17 +50,11 @@ st<-append(me,st)
 df<-select(df,sort(st))
 
 
-
-# '''
-# Ultima seccion, seccion 5
-# En esta parte nos piden obtener un dataset donde se tenga el promedio de los valores
-# por cada variable,actividad y sujeto
-# '''
-# group by subject and activity and summarise using mean
+# Agrupa por voluntario y actividad
 tidy <- df %>% 
   group_by(Volunteer, Activity) %>%
   summarise_each(funs(mean))
 
-# output to file "tidy_data.txt"
+# Crea el archivo "tidy_data.txt"
 write.table(tidy, "tidy_df.txt", row.names = FALSE, 
             quote = FALSE)
