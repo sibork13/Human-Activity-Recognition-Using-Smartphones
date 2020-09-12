@@ -1,100 +1,43 @@
 # Human Activity Recognition Using Smartphones
 
-## Course Project for Getting and Cleaning Data from coursera
+## Proyecto del curso para obtener y limpiar datos de coursera
 
-For this project, we had to realice 5 steps
+Para este proyecto, necesitavamos hacer 5 pasos
 
-  1. Merge the training and the test sets to create one dataset
-  2. Extracts only the measurements on the mean and standard deviation for each measuremen
-  3. Uses descriptive activity names to name the activities in the data set
-  4. Appropriately labels the data set with descriptive variable names.
-  5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+  1. Combinar los datos de test y de train para crear un nuevo dataset
+  2. Extrae solo las medidas de la media y la desviación estándar de cada medida.
+  3. Utiliza nombres de actividades descriptivos para nombrar las actividades en el conjunto de datos.
+  4. Etiquete adecuadamente el conjunto de datos con nombres de variables descriptivos.
+  5. A partir del conjunto de datos del paso 4, crea un segundo conjunto de datos ordenado e independiente con el promedio de cada variable para cada actividad y cada tema.
   
-  To solve the probelm i should make in disorder this steps
+   Para resolver el problema, debo hacer en desorden estos pasos
 
-### First step, merge training and test sets
+Primer paso, fusionar conjuntos de entrenamiento y prueba
 
-In the script first i read all need files 
+En el script primero leo todos los archivos necesarios
+Luego, configure los nombres para el marco de datos y_train, y_test, subject_train y prueba del sujeto
+Finalmente, tomo todos los DF y los configuro en uno con la función cbind
 
+Tercera parte, use etiquetas descriptivas para las actividades
 
-library(data.table)
-xtrain<-fread("train/X_train.txt")
-xtest<-fread("test/X_test.txt")
-ytrain<-fread("train/y_train.txt")
-ytest<-fread("test/y_test.txt")
-subtrain<-fread("train/subject_train.txt")
-subtest<-fread("test/subject_test.txt")
-
-
-Then, set names to the y_train,y_test,subject_train and subject_test data frame
+En esta parte, leeré "activity_labels"
+Luego, configure los nombres de las columnas para manipularlos más fácilmente
+Arfther eso, convierta la clase entera en carácter
+Finalmente, usé la función sub () para cambiar "carácter numérico" en una cadena almacenada en activity_labels "
 
 
-names(ytrain)<-c("Activity")
-names(ytest)<-c("Activity")
-names(subtrain)<-c("Volunteer")
-names(subtest)<-c("Volunteer")
+Cuarta parte, establecer etiquetas de variables descriptivas
+
+Hasta este punto, utilicé el archivo "feautres" para conocer todos los nombres de las etiquetas.
+tomé las columnas para poner el nombre
+
+Segunda parte, extraiga solo datos de desviación estándar y promedio
+
+Para esta sección, ised dplyr library para usar la función select ()
+con grep () obtuve todos los índices de columnas donde era mean o std en el nombre de la etiqueta
+y seleccione estas columnas
 
 
-Finally, i toke all DF and set into one with cbidn function
-
-
-Tipe<-rep("train",dim(xtrain)[1])
-xtrain<-cbind(xtrain,Tipe,ytrain,subtrain)
-Tipe<-rep("test",dim(xtest)[1])
-xtest<-cbind(xtest,Tipe,ytest,subtest)
-df<-rbind(xtrain,xtest)
-
-
-### Third part, Use descriptive labels to activities
-
-In this part, ia read "activity_labels" 
-Then set column names to easier manipulate
-Arfther that, convert integer class to character
-Finally, used the sub() function to change "number caracter" into string stored in activity_labels"
-
-
-aclab<-fread("activity_labels.txt")
-names(aclab)<-c("id","activity")
-df$Activity<-as.character(df$Activity)
-for(i in aclab$id){
-  df$Activity<-sub(as.character(i),aclab$activity[i],df$Activity)
-}
-
-
-### Fourth Part, Set descriptible variables labels
-
-To this point, i used "feautres" file to know all label names
-i tooked the columns to put the name
-
-
-fea<-fread("features.txt")
-names(fea)<-c("id","label")
-names(df)[1:561]<-fea$label
-
-
-
-### Second part, extract only aveage and standar desviation data
-
-To this section, i ised dplyr library to use select() function
-with grep() i got all columns indices where was mean or std inthe label name
-and select these columns
-
-
-library(dplyr)
-me<-grep("mean()",names(df))
-st<-grep("std()",names(df))
-finales<-c(562,563,564)
-me<-append(me,finales)
-st<-append(me,st)
-df<-select(df,sort(st))
-
-
-### Fifth section, create a new DF whit mean of the volunteer and activity
-To do this, i ised aggregate function, this functions help us to do a dataframe with 
-an especific function between 2 labels and the others
-
-
-nuevo<-aggregate(cbind(df$Volunteer,df$Activity), df,mean)
-nuevo<-nuevo[order(nuevo$Volunteer,nuevo$Activity),]
-write.table(nuevo, "nuevo.txt", row.name=FALSE)
-
+Quinta sección, crear un nuevo DF con la media del voluntariado y la actividad
+Para hacer esto, usé la funcion group_by() que me permite crear grupos de un df y asi
+poder realizar el calculo del promedio
